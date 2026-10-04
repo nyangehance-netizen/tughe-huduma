@@ -8,11 +8,20 @@
 
 Open the downloaded file on an Android phone. If the phone asks, allow installing apps from this source. On **iPhone**, open the live demo in Safari, tap Share, then **Add to Home Screen**.
 
-Open the link on a phone or a computer. On a phone, choose **Add to Home Screen** and it runs like an app, even offline. The demo shows example cases, and anything you submit is saved only on your own device. Tap **Anza upya / Reset demo** to start again.
+**Sign-in is required.** Members tap **Jisajili / Register**, accept the privacy notice and choose a PIN. To see the officers' desk, sign in with the demo officer account: **0700 000 001**, PIN **2580**.
 
-| Member home | My case | Officers' desk | Assistant |
+In the demo, accounts and cases stay on the device that created them:
+- Each member's personal details are encrypted with their PIN.
+- 5 wrong PINs lock the account for 5 minutes.
+- The app locks itself after 5 minutes without use.
+- Members see only their own cases, and every time an officer opens a case, the member sees who it was.
+- Members can see all their data or delete their account from **Akaunti → Faragha**.
+
+**Anza upya / Reset demo** clears everything on the device.
+
+| Sign in | My case | Officers' desk | Assistant |
 |---|---|---|---|
-| ![Home](screenshots/home.png) | ![My case](screenshots/my-case.png) | ![Officers' desk](screenshots/officers-desk.png) | ![Assistant](screenshots/assistant.png) |
+| ![Sign in](screenshots/sign-in.png) | ![My case](screenshots/my-case.png) | ![Officers' desk](screenshots/officers-desk.png) | ![Assistant](screenshots/assistant.png) |
 
 ## What's in this repository
 
@@ -37,7 +46,7 @@ Open the link on a phone or a computer. On a phone, choose **Add to Home Screen*
 |---|---|---|
 | Runs on | Any browser; can be installed to the home screen | Android and iPhone (Play Store / App Store) |
 | Data | Example cases plus whatever you add, on this device only | Shared, secure database (Supabase) |
-| Sign-in | None; you see both the member and officer views | Phone number + SMS code; officers get the desk |
+| Sign-in | Phone number + PIN, accounts stored on the device | Phone number + SMS code, fingerprint/face app lock; officers get the desk |
 | Notifications | — | Push notifications for replies, urgent cases and the morning deadline reminder |
 | AI answers | Built-in answers only | Built-in answers + AI (Claude) |
 

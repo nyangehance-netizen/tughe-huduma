@@ -3,6 +3,7 @@ import { Stack, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { AppLock } from "../components/AppLock";
 import { AuthProvider, useAuth } from "../lib/auth";
 import { LangProvider, useT } from "../lib/i18n";
 import { registerForPush } from "../lib/push";
@@ -14,7 +15,9 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <LangProvider>
         <AuthProvider>
-          <Navigator />
+          <AppLock>
+            <Navigator />
+          </AppLock>
         </AuthProvider>
       </LangProvider>
     </SafeAreaProvider>
@@ -70,6 +73,8 @@ function Navigator() {
         <Stack.Screen name="new-case" options={{ title: t.form.title, presentation: "modal" }} />
         <Stack.Screen name="case/[id]" options={{ title: "" }} />
         <Stack.Screen name="desk/[id]" options={{ title: "" }} />
+        <Stack.Screen name="privacy" options={{ title: t.privacy.title }} />
+        <Stack.Screen name="my-data" options={{ title: t.privacy.myData }} />
       </Stack>
     </>
   );

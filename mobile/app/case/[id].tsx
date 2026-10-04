@@ -1,3 +1,4 @@
+import { usePreventScreenCapture } from "expo-screen-capture";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
@@ -8,9 +9,10 @@ import { fmtDate, useT } from "../../lib/i18n";
 import { isOpen, slaOf } from "../../lib/sla";
 import { supabase } from "../../lib/supabase";
 import { space, useColors } from "../../lib/theme";
-import type { Case, Message } from "../../lib/types";
+import type { Case, CaseView, Message } from "../../lib/types";
 
 export default function CaseDetail() {
+  usePreventScreenCapture();
   const c = useColors();
   const { t, lang } = useT();
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -20,14 +22,17 @@ export default function CaseDetail() {
   const [sending, setSending] = useState(false);
   const [err, setErr] = useState("");
   const [showDetails, setShowDetails] = useState(false);
+  const [views, setViews] = useState<CaseView[]>([]);
   const scroller = useRef<ScrollView>(null);
   const C = t.cases;
 
   const load = useCallback(async () => {
-    const [{ data: cs }, { data: ms }] = await Promise.all([
+    const [{ data: cs }, { data: ms }, { data: vs }] = await Promise.all([
       supabase.from("cases").select("*").eq("id", id).single(),
       supabase.from("messages").select("*").eq("case_id", id).order("created_at"),
+      supabase.from("case_views").select("*").eq("case_id", id).order("viewed_at", { ascending: false }).limit(10),
     ]);
+    setViews((vs as CaseView[]) ?? []);
     setKase((cs as Case) ?? null);
     setMsgs((ms as Message[]) ?? []);
   }, [id]);
@@ -108,6 +113,13 @@ export default function CaseDetail() {
                 </Row>
               </View>
             ) : null}
+          </Card>
+
+          <Card>
+            <Label>{t.privacy.viewsH}</Label>
+            {views.length
+              ? views.map((v) => <Txt key={v.id} small muted>{fmtDate(v.viewed_at, lang, true)} · {v.officer_name}</Txt>)
+              : <Txt small muted>{t.privacy.viewsNone}</Txt>}
           </Card>
 
           <Label>{C.convo}</Label>

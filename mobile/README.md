@@ -54,7 +54,7 @@ tughe-app/
    ```bash
    supabase db push
    ```
-   You can also paste `supabase/migrations/20261004000000_init.sql` into **SQL Editor → Run**.
+   You can also paste the two files in `supabase/migrations/` into **SQL Editor → Run**, in date order.
 4. Turn on login: **Authentication → Sign In / Providers**
    - **Phone**: enable it and enter your SMS provider's details. Members sign in with `07XX…` numbers, which the app turns into `+2557XX…`.
    - **Email**: enabled by default. Go to *Authentication → Email Templates → Magic Link* and make sure the template shows `{{ .Token }}`, so people receive a 6-digit code.
@@ -63,6 +63,7 @@ tughe-app/
    supabase functions deploy assistant
    supabase functions deploy notify --no-verify-jwt
    supabase functions deploy sla-reminder --no-verify-jwt
+   supabase functions deploy delete-account
 
    supabase secrets set ANTHROPIC_API_KEY=sk-ant-...        # optional, for AI answers
    supabase secrets set WEBHOOK_SECRET=$(openssl rand -hex 24)
@@ -160,17 +161,49 @@ Before you submit, prepare the following:
 
 ---
 
-## Security model
+## Security and privacy
 
-The database enforces every rule, so even a modified app can't get around them:
+**Sign-in**
+- Members sign in with their phone number and a one-time SMS code (or an email code). There are no passwords to leak or reuse.
+- Officers use the same sign-in. Only an admin can give someone the officer role, and nobody can give it to themselves.
+- **App lock.** When someone returns to the app after more than a minute away, it asks for their fingerprint, face or phone PIN. Members can switch this off, but only after confirming with that same check.
+- **Hidden in the app switcher.** While the app is in the background, a TUGHE cover hides the screen.
+- **No screenshots on sensitive screens.** Screenshots and screen recording are blocked on case screens, the officer desk and "See my data" on Android. iOS doesn't allow apps to block them.
+- **No phone backups.** Android backups of the app's data are turned off (`allowBackup: false`), so sign-in sessions can't be copied off the phone.
+- **Sign out everywhere.** *Sign out on all devices* ends every session at once, for example after a phone is lost.
 
-- A member can read only **their own** cases and messages, can't change a case's stage, and can't post in someone else's case.
-- Only officers can see every case, update cases, and read internal notes and the activity log.
-- Nobody can give themselves the officer role inside the app.
-- A case can't be marked resolved or closed without a written resolution, and that resolution is sent to the member automatically.
-- The AI key stays on the server. The app never sees it, and only signed-in users can use the assistant.
+**Who can see what** (enforced by the database, so a modified app can't get around it)
+- A member reads only **their own** cases, messages and view history. They can't change a case's stage or post in someone else's case.
+- Officers read all cases. Internal notes and the activity log are for officers only.
+- **Every officer who opens a case is recorded** (`case_views`), and the member sees their name and the date. Nobody can edit or delete that record.
+- Messages are append-only: no one can edit or delete what was said.
+- A case can't be closed without a written resolution, and the member receives it automatically.
+- The AI key and the service key stay on the server. The app only ever holds the public "anon" key.
 
-These rules were tested against PostgreSQL 16: member isolation, blocked self-promotion, the officer workflow, the resolution requirement, hidden notes, deadlines that skip weekends, and acknowledgements in both languages.
+**Member rights** (Tanzania Personal Data Protection Act, 2022)
+- **Consent.** New members must accept the privacy notice before using the app. The date and notice version are stored (`consent_at`, `consent_version`).
+- **See my data.** Shows everything held about the member: profile, cases, messages and officer views. They can share or save it.
+- **Correct my data.** Through *My details*.
+- **Delete my account.** The member types FUTA/DELETE to confirm. Their account, profile, cases and messages are deleted from the server (the `delete-account` function). Officer accounts are removed by TUGHE ICT.
+
+**Recommended Supabase settings** (Dashboard → Authentication)
+| Setting | Value |
+|---|---|
+| SMS OTP expiry | 300 seconds |
+| OTP length | 6 |
+| Rate limits → SMS / email sent | Keep the defaults or lower them to limit abuse and SMS cost |
+| Bot and abuse protection (CAPTCHA) | Turn on hCaptcha or Turnstile if fake sign-ups appear |
+| Sessions → inactivity timeout | 30 days for members. Shorter for officers if you use a separate project |
+| JWT expiry | 3600 seconds (the default) |
+| Database → Backups | On (daily); Point-in-time recovery for production |
+
+Also: keep the **service_role** key out of the app and out of Git (it lives only in Supabase secrets), give dashboard access only to named TUGHE ICT staff with two-factor sign-in turned on, and publish the privacy notice at a public URL (both app stores require one).
+
+These rules were tested against PostgreSQL 16:
+- member isolation, blocked self-promotion and the resolution requirement
+- view logging that members can't fake or delete
+- messages that can't be edited
+- deadlines that skip weekends, and acknowledgements in both languages
 
 ## Customising
 

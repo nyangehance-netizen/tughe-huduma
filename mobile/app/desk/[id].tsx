@@ -1,3 +1,4 @@
+import { usePreventScreenCapture } from "expo-screen-capture";
 import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { Linking, View } from "react-native";
@@ -15,6 +16,7 @@ import type { Case, CaseEvent, CaseStatus, Message, Note } from "../../lib/types
 const STATUSES: CaseStatus[] = ["received", "review", "action", "resolved", "closed"];
 
 export default function DeskCase() {
+  usePreventScreenCapture();
   const c = useColors();
   const { t, lang } = useT();
   const { profile, isOfficer } = useAuth();
@@ -50,6 +52,8 @@ export default function DeskCase() {
   }, [id]);
 
   useEffect(() => { load(); }, [load]);
+  // Every officer view is recorded and shown to the member.
+  useEffect(() => { if (isOfficer && id) supabase.rpc("log_case_view", { p_case: id }).then(() => {}); }, [isOfficer, id]);
 
   useEffect(() => {
     const ch = supabase.channel(`desk-case-${id}`)

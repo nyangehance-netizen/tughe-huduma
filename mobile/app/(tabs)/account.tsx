@@ -1,12 +1,14 @@
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
+import { useAppLock } from "../../components/AppLock";
 import { Linking, View } from "react-native";
-import { Button, Card, Chip, H2, KV, Label, Row, Screen, Txt } from "../../components/ui";
+import { Banner, Button, Card, Chip, Field, H2, KV, Label, Row, Screen, Txt } from "../../components/ui";
 import { useAuth } from "../../lib/auth";
 import { CONTACTS } from "../../lib/content";
 import { useT } from "../../lib/i18n";
 import { pushEnabled, registerForPush } from "../../lib/push";
+import { supabase } from "../../lib/supabase";
 import { space } from "../../lib/theme";
 
 export default function Account() {
@@ -14,6 +16,11 @@ export default function Account() {
   const { profile, session, signOut } = useAuth();
   const router = useRouter();
   const [notif, setNotif] = useState<boolean | null>(null);
+  const lock = useAppLock();
+  const [confirm, setConfirm] = useState("");
+  const [delErr, setDelErr] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const PV = t.privacy;
   const A = t.account;
 
   useEffect(() => { pushEnabled().then(setNotif).catch(() => setNotif(false)); }, []);
@@ -60,6 +67,43 @@ export default function Account() {
           <Button small variant="secondary" icon="mail-outline" title={A.email} onPress={() => Linking.openURL(`mailto:${CONTACTS.email}`)} />
           <Button small variant="secondary" icon="globe-outline" title={A.web} onPress={() => Linking.openURL(CONTACTS.web)} />
         </Row>
+      </Card>
+
+      <Card>
+        <H2>{PV.section}</H2>
+        {lock.available ? (
+          <>
+            <Label>{PV.appLock}</Label>
+            <Txt small muted>{PV.appLockP}</Txt>
+            <Row>
+              <Chip label={lang === "sw" ? "Imewashwa" : "On"} selected={lock.enabled} onPress={() => lock.setEnabled(true)} />
+              <Chip label={lang === "sw" ? "Imezimwa" : "Off"} selected={!lock.enabled} onPress={() => lock.setEnabled(false)} />
+            </Row>
+          </>
+        ) : null}
+        <Row>
+          <Button small variant="secondary" icon="shield-checkmark-outline" title={PV.title} onPress={() => router.push("/privacy")} />
+          <Button small variant="secondary" icon="document-text-outline" title={PV.myData} onPress={() => router.push("/my-data")} />
+        </Row>
+        <Button small variant="secondary" icon="phone-portrait-outline" title={PV.signOutAll}
+          onPress={async () => { await supabase.auth.signOut({ scope: "global" }); router.replace("/login"); }} />
+        {profile?.role === "member" ? (
+          <View style={{ gap: space.sm }}>
+            <Label>{PV.del}</Label>
+            <Txt small muted>{PV.delP}</Txt>
+            <Field label={PV.delType} value={confirm} onChangeText={setConfirm} autoCapitalize="characters" autoCorrect={false} />
+            {delErr ? <Banner tone="bad" text={delErr} /> : null}
+            <Button small variant="danger" icon="trash-outline" title={PV.delBtn} loading={deleting}
+              disabled={!/^(FUTA|DELETE)$/i.test(confirm.trim())}
+              onPress={async () => {
+                setDeleting(true); setDelErr("");
+                const { error } = await supabase.functions.invoke("delete-account", { body: { confirm: "DELETE" } });
+                setDeleting(false);
+                if (error) { setDelErr(t.common.error); return; }
+                await signOut(); router.replace("/login");
+              }} />
+          </View>
+        ) : <Txt small muted>{PV.delStaff}</Txt>}
       </Card>
 
       <Button variant="danger" icon="log-out-outline" title={A.signOut} onPress={async () => { await signOut(); router.replace("/login"); }} />

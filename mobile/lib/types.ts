@@ -18,6 +18,8 @@ export interface Profile {
   role: Role;
   lang: Lang;
   push_token: string | null;
+  consent_at: string | null;
+  consent_version: string | null;
 }
 
 export interface Case {
@@ -83,4 +85,11 @@ export interface DeskStats {
   unassigned: number;
   resolved_30d: number;
   avg_days_to_resolve: number | null;
+}
+
+export interface CaseView {
+  id: number;
+  case_id: string;
+  officer_name: string | null;
+  viewed_at: string;
 }

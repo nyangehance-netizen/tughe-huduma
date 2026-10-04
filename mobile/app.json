@@ -28,7 +28,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
       },
-      "permissions": ["POST_NOTIFICATIONS"]
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ],
+      "allowBackup": false
     },
     "plugins": [
       "expo-router",
@@ -37,6 +40,12 @@
         {
           "icon": "./assets/notification-icon.png",
           "color": "#2D3597"
+        }
+      ],
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "TUGHE Huduma hutumia Face ID kulinda taarifa zako. / TUGHE Huduma uses Face ID to protect your information."
         }
       ]
     ],
