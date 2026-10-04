@@ -1,0 +1,12 @@
+# Minimal Supabase CLI config for TUGHE Huduma.
+# `supabase link --project-ref <your-ref>` connects this folder to your hosted project.
+project_id = "tughe-huduma"
+
+[functions.assistant]
+verify_jwt = true
+
+[functions.notify]
+verify_jwt = false
+
+[functions.sla-reminder]
+verify_jwt = false
