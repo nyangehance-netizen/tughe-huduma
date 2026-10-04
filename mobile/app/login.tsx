@@ -5,6 +5,7 @@ import { Banner, Button, Chip, Field, H1, Row, Screen, Txt } from "../components
 import { useT } from "../lib/i18n";
 import { isConfigured, supabase } from "../lib/supabase";
 import { BRAND, radius, space, useColors } from "../lib/theme";
+import { IS_STAFF_APP } from "../lib/variant";
 
 /** 0754 123 456 → +255754123456 */
 function normalizePhone(raw: string): string | null {
@@ -64,10 +65,10 @@ export default function Login() {
         <View style={{ width: 112, height: 112, borderRadius: 56, backgroundColor: "#FFFFFF", alignItems: "center", justifyContent: "center", borderWidth: 3, borderColor: BRAND }}>
           <Image source={require("../assets/logo.png")} style={{ width: 100, height: 100, borderRadius: 50 }} accessibilityLabel="TUGHE" />
         </View>
-        <Txt bold style={{ color: c.blue, letterSpacing: 0.5 }}>{t.tagline}</Txt>
+        <Txt bold style={{ color: c.blue, letterSpacing: 0.5 }}>{IS_STAFF_APP ? t.staff.portal : t.tagline}</Txt>
       </View>
-      <H1>{L.title}</H1>
-      <Txt muted>{L.sub}</Txt>
+      <H1>{IS_STAFF_APP ? t.staff.appName : L.title}</H1>
+      <Txt muted>{IS_STAFF_APP ? t.staff.loginSub : L.sub}</Txt>
       {!isConfigured ? <Banner tone="warn" text={L.notConfigured} /> : null}
 
       {step === "enter" ? (

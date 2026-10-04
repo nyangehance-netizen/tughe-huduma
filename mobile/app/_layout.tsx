@@ -9,6 +9,7 @@ import { LangProvider, useT } from "../lib/i18n";
 import { registerForPush } from "../lib/push";
 import { supabase } from "../lib/supabase";
 import { BRAND, useColors } from "../lib/theme";
+import { IS_STAFF_APP } from "../lib/variant";
 
 export default function RootLayout() {
   return (
@@ -41,7 +42,7 @@ function Navigator() {
 
   // Register this phone for push once the person is signed in and set up.
   useEffect(() => {
-    if (session && profileComplete) registerForPush(session.user.id).catch(() => {});
+    if (session && (profileComplete || IS_STAFF_APP)) registerForPush(session.user.id).catch(() => {});
   }, [session, profileComplete]);
 
   // Use the language saved on the profile; keep the profile in sync when it changes here.
@@ -59,7 +60,7 @@ function Navigator() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: BRAND },
+          headerStyle: { backgroundColor: IS_STAFF_APP ? "#1B2160" : BRAND },
           headerTintColor: "#FFFFFF",
           headerTitleStyle: { fontWeight: "700" },
           headerBackButtonDisplayMode: "minimal",
@@ -74,6 +75,8 @@ function Navigator() {
         <Stack.Screen name="case/[id]" options={{ title: "" }} />
         <Stack.Screen name="desk/[id]" options={{ title: "" }} />
         <Stack.Screen name="privacy" options={{ title: t.privacy.title }} />
+        <Stack.Screen name="staff-apply" options={{ title: t.staff.portal, headerBackVisible: false }} />
+        <Stack.Screen name="wrong-app" options={{ title: t.appName, headerBackVisible: false }} />
         <Stack.Screen name="my-data" options={{ title: t.privacy.myData }} />
       </Stack>
     </>

@@ -1,8 +1,0 @@
-{
-  "appId": "tz.or.tughe.huduma.demo",
-  "appName": "TUGHE Huduma",
-  "webDir": "www",
-  "android": {
-    "backgroundColor": "#2D3597"
-  }
-}

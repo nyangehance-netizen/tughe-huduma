@@ -1,9 +1,9 @@
 # TUGHE Huduma — Android & iOS app
 
-One app for every TUGHE member and officer:
+Two apps from one codebase: **TUGHE Huduma** for members and **TUGHE Dawati** for officers and service providers.
 
 - **Members** sign in with their phone number. They report a workplace problem, get a reference number (e.g. `TGH-261004-K7QD`), follow its progress and chat with the officer handling it. Push notifications tell them when TUGHE replies.
-- **Officers** see a back office (the *Dawati* tab). Every case has a reply deadline and a resolution deadline, and overdue cases come first. Officers can assign cases to themselves, change the stage, extend a deadline, use reply templates or an AI draft, keep internal notes and see an activity log. Every weekday morning they get a reminder about late cases.
+- **Officers** use the separate **TUGHE Dawati** app. They apply with their staff number, position, office and work email and accept a confidentiality pledge. An administrator approves them before they can see any member data, and can suspend them at any time. Approved officers get the back office. Every case has a reply deadline and a resolution deadline, and overdue cases come first. Officers can assign cases to themselves, change the stage, extend a deadline, use reply templates or an AI draft, keep internal notes and see an activity log. Every weekday morning they get a reminder about late cases.
 - **The assistant (Msaidizi)** answers common questions instantly, even with no internet: leave days, joining TUGHE, contacts, and guidance for each problem type. It finds a case from its reference number and opens the right form. Harder questions go to AI (Claude). It replies in Kiswahili or English.
 
 Everything is bilingual (Kiswahili by default) and works in light and dark mode. The colours and icons come from the TUGHE logo.
@@ -83,9 +83,11 @@ tughe-app/
    ```
    (04:30 UTC is 07:30 in Tanzania, Monday to Friday.)
 
-### Make someone an officer
+### Officers and administrators
 
-People sign up as members. To give a TUGHE staff member the officers' desk, have them sign in to the app once, then run this in the SQL Editor:
+Officers apply in the **TUGHE Dawati** app and an administrator approves them in its *Maafisa / Officers* tab. Nobody needs to touch the database for this.
+
+The **first administrator** has to be created once by hand. Have that person sign in to TUGHE Dawati once, then run this in the SQL Editor (you can also promote someone directly the same way):
 
 ```sql
 update public.profiles set role = 'officer' where phone = '+255754000111';   -- or: where email = 'name@tughe.or.tz'
@@ -120,6 +122,20 @@ Scan the QR code with **Expo Go** (Android) or the Camera app (iPhone).
 Remote push notifications don't work inside Expo Go on Android. Use a development build to test them (`eas build --profile development`), or test them with the preview APK below. Everything else works in Expo Go.
 
 ---
+
+### Two apps from one codebase
+
+`APP_VARIANT` chooses which app is built (see `app.config.js`):
+
+| | Members' app | Officers' app |
+|---|---|---|
+| Name | TUGHE Huduma | TUGHE Dawati |
+| Android package / iOS bundle | `tz.or.tughe.huduma` | `tz.or.tughe.dawati` |
+| Run on your phone | `npx expo start` | `npm run start:staff` |
+| Test APK | `npm run build:apk` | `npm run build:staff:apk` |
+| Store build | `npm run build:android` / `build:ios` | `npm run build:staff:android` / `build:staff:ios` |
+
+Each app is a separate listing in Google Play and the App Store. Officers install TUGHE Dawati, and an officer account is refused by TUGHE Huduma (and a member account by TUGHE Dawati).
 
 ## 3. Build the real apps
 
@@ -173,6 +189,7 @@ Before you submit, prepare the following:
 - **Sign out everywhere.** *Sign out on all devices* ends every session at once, for example after a phone is lost.
 
 **Who can see what** (enforced by the database, so a modified app can't get around it)
+- Officers get access only through an approved application (`staff_applications`). Applicants can't approve or edit their own application. Only an administrator can decide, through `decide_staff_application()`, and suspending someone removes their access at once.
 - A member reads only **their own** cases, messages and view history. They can't change a case's stage or post in someone else's case.
 - Officers read all cases. Internal notes and the activity log are for officers only.
 - **Every officer who opens a case is recorded** (`case_views`), and the member sees their name and the date. Nobody can edit or delete that record.

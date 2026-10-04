@@ -93,3 +93,20 @@ export interface CaseView {
   officer_name: string | null;
   viewed_at: string;
 }
+
+export type StaffPosition = "zonal" | "regional" | "branch" | "legal" | "hq" | "ict";
+export interface StaffApplication {
+  id: string;
+  user_id: string;
+  full_name: string;
+  staff_no: string;
+  position: StaffPosition;
+  office_region: string;
+  work_email: string;
+  phone: string | null;
+  status: "pending" | "approved" | "rejected" | "suspended";
+  reason: string | null;
+  decided_by_name: string | null;
+  decided_at: string | null;
+  created_at: string;
+}

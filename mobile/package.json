@@ -10,7 +10,11 @@
     "typecheck": "tsc --noEmit",
     "build:android": "eas build --platform android --profile production",
     "build:ios": "eas build --platform ios --profile production",
-    "build:apk": "eas build --platform android --profile preview"
+    "build:apk": "eas build --platform android --profile preview",
+    "start:staff": "APP_VARIANT=staff expo start",
+    "build:staff:apk": "eas build --platform android --profile preview-staff",
+    "build:staff:android": "eas build --platform android --profile production-staff",
+    "build:staff:ios": "eas build --platform ios --profile production-staff"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",

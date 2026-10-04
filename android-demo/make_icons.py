@@ -8,6 +8,8 @@ import sys
 from PIL import Image
 
 BLUE = (45, 53, 151, 255)  # TUGHE logo blue #2D3597
+if len(sys.argv) > 2:  # optional splash colour, e.g. "#1B2160" for the officers' app
+    h = sys.argv[2].lstrip("#"); BLUE = (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16), 255)
 WHITE = (255, 255, 255, 255)
 
 logo = Image.open(sys.argv[1]).convert("RGBA")

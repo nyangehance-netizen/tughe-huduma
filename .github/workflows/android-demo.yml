@@ -40,50 +40,31 @@ jobs:
           echo "ANDROID_HOME=$ANDROID_HOME"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
-      - name: Copy the demo into the app
-        run: |
-          mkdir -p www
-          cp -r ../docs/. www/
-          # The service worker is for the website only; the app already ships every file offline.
-          sed -i 's#<script>if("serviceWorker" in navigator)[^<]*</script>##' www/index.html
-
       - name: Install Capacitor
-        run: npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund && pip install --quiet pillow
 
-      - name: Create the Android project
-        run: npx cap add android && npx cap sync android
+      - name: Build the members' app (TUGHE Huduma)
+        run: ./build.sh member ${{ github.run_number }}
 
-      - name: Apply TUGHE icon and splash screen
-        run: |
-          pip install --quiet pillow
-          python3 make_icons.py ../docs/icon-512.png
-
-      - name: Set version
-        run: |
-          sed -i "s/versionCode [0-9]*/versionCode ${{ github.run_number }}/" android/app/build.gradle
-          sed -i "s/versionName \"[^\"]*\"/versionName \"1.0.${{ github.run_number }}\"/" android/app/build.gradle
-
-      - name: Build APK
-        working-directory: android-demo/android
-        run: |
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk ../TUGHE-Huduma-demo.apk
+      - name: Build the officers' app (TUGHE Dawati)
+        run: ./build.sh staff ${{ github.run_number }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: TUGHE-Huduma-demo-apk
-          path: android-demo/TUGHE-Huduma-demo.apk
+          name: TUGHE-demo-apks
+          path: |
+            android-demo/TUGHE-Huduma-demo.apk
+            android-demo/TUGHE-Dawati-demo.apk
 
       - name: Publish on the Releases page
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete demo-apk --yes --cleanup-tag || true
-          gh release create demo-apk TUGHE-Huduma-demo.apk \
-            --title "TUGHE Huduma – Android demo app (build ${{ github.run_number }})" \
-            --notes "Pakua **TUGHE-Huduma-demo.apk** hapa chini na uifungue kwenye simu ya Android. Ikiuliza, ruhusu kusakinisha programu kutoka chanzo hiki.
+          gh release create demo-apk TUGHE-Huduma-demo.apk TUGHE-Dawati-demo.apk \
+            --title "TUGHE Huduma & TUGHE Dawati – Android demo apps (build ${{ github.run_number }})" \
+            --notes "**TUGHE-Huduma-demo.apk**: programu ya wanachama. **TUGHE-Dawati-demo.apk**: lango la maafisa (omba akaunti, idhini ya msimamizi, dawati). Pakua na ufungue kwenye simu ya Android; ikiuliza, ruhusu kusakinisha programu kutoka chanzo hiki.
 
-          Download **TUGHE-Huduma-demo.apk** below and open it on an Android phone. If asked, allow installing apps from this source.
+          **TUGHE-Huduma-demo.apk** is the members' app. **TUGHE-Dawati-demo.apk** is the officers' portal (apply, admin approval, desk). Download and open on an Android phone; if asked, allow installing apps from this source.
 
-          This is the demo: it runs offline with example cases, and anything you enter stays on the phone. The full app with a shared server is in the \`mobile/\` folder."
+          These are demos: they run offline, and accounts and cases stay on the phone that created them. Each app keeps its own data. The full apps with a shared server are in the \`mobile/\` folder."
