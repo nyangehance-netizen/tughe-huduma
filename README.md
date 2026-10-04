@@ -4,6 +4,10 @@
 
 ### ▶ Live demo: **https://nyangehance-netizen.github.io/tughe-huduma/**
 
+### 📱 Android app: **[Download TUGHE-Huduma-demo.apk](https://github.com/nyangehance-netizen/tughe-huduma/releases/latest/download/TUGHE-Huduma-demo.apk)**
+
+Open the downloaded file on an Android phone. If the phone asks, allow installing apps from this source. On **iPhone**, open the live demo in Safari, tap Share, then **Add to Home Screen**.
+
 Open the link on a phone or a computer. On a phone, choose **Add to Home Screen** and it runs like an app, even offline. The demo shows example cases, and anything you submit is saved only on your own device. Tap **Anza upya / Reset demo** to start again.
 
 | Member home | My case | Officers' desk | Assistant |
@@ -15,6 +19,7 @@ Open the link on a phone or a computer. On a phone, choose **Add to Home Screen*
 | Folder | What it is |
 |---|---|
 | [`docs/`](docs) | The live web demo, published by GitHub Pages: a single page with no server |
+| [`android-demo/`](android-demo) + [`.github/workflows`](.github/workflows) | Turns the demo into an installable Android app. GitHub builds it automatically and posts it on the [Releases page](https://github.com/nyangehance-netizen/tughe-huduma/releases) |
 | [`mobile/`](mobile) | The real **Android and iOS app** (React Native / Expo) and its **Supabase backend**: database, security rules, deadlines, push notifications and the AI assistant. Setup and publishing steps are in [`mobile/README.md`](mobile/README.md) |
 
 ## Features
